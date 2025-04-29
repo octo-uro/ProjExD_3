@@ -141,6 +141,30 @@ class Bomb:
         screen.blit(self.img, self.rct)
 
 
+class Score:
+    """
+    スコアを表示するクラス
+    """
+    def __init__(self):
+        """
+        フォントの設定、スコアの初期化
+        """
+        self.font = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
+        self.color = (0, 0, 255)  # 青色
+        self.score = 0  # スコアの初期値
+        self.img = self.font.render(f"スコア: {self.score}", 0, self.color)
+        self.rct = self.img.get_rect()
+        self.rct.center = (100, HEIGHT - 50)  # 画面左下（横100, 縦は画面下から50）
+
+    def update(self, screen: pg.Surface):
+        """
+        現在のスコアを表示する
+        引数 screen：画面Surface
+        """
+        self.img = self.font.render(f"スコア: {self.score}", 0, self.color)
+        screen.blit(self.img, self.rct)
+
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -150,6 +174,9 @@ def main():
     
     # NUM_OF_BOMBS個の爆弾インスタンスをリストで生成（内包表記）
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
+    
+    # スコアインスタンスの生成
+    score = Score()
     
     clock = pg.time.Clock()
     tmr = 0
@@ -183,6 +210,7 @@ def main():
                         bird.change_img(6, screen)
                         beam = None
                         bombs[i] = None
+                        score.score += 1 # スコアを1点加算
                         break
             
         # 爆弾リストの更新: Noneでない要素だけのリストにする
@@ -198,6 +226,9 @@ def main():
         # 爆弾リストの各要素に対してupdate呼び出し（Noneチェック不要）
         for bomb in bombs:
             bomb.update(screen)
+        
+        # スコアの更新と描画
+        score.update(screen)
             
         pg.display.update()
         tmr += 1
