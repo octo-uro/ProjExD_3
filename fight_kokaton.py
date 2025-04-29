@@ -191,7 +191,7 @@ class Explosion:
         """
         self.life -= 1  # ライフを1減らす
         if self.life > 0:
-            # 爆発経過時間が残っている場合、ゆっくり画像を切り替える（5フレームに1回切り替え）
+            # 爆発経過時間が残っている場合、ゆっくり画像を切り替える（10フレームに1回切り替え）
             self.img_idx = int(self.life // 10 % 2)
             screen.blit(self.imgs[self.img_idx], self.rct)
 
