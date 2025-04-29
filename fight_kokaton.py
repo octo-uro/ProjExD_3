@@ -7,6 +7,7 @@ import pygame as pg
 
 WIDTH = 1100  # ゲームウィンドウの幅
 HEIGHT = 650  # ゲームウィンドウの高さ
+NUM_OF_BOMBS = 5  # 爆弾の個数
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -84,21 +85,6 @@ class Bird:
         screen.blit(self.img, self.rct)
 
 
-# ビームクラス:
-    # """
-    # こうかとんが放つビームに関するクラス
-    # """
-    # def イニシャライザ(self, bird:"Bird"):
-    #     """
-    #     ビーム画像Surfaceを生成する
-    #     引数 bird：ビームを放つこうかとん（Birdインスタンス）
-    #     """
-    #     self.img = pg.画像のロード(f"fig/beam.png")
-    #     self.rct = self.img.Rectの取得()
-    #     self.ビームの中心縦座標 = こうかとんの中心縦座標
-    #     self.ビームの左座標 = こうかとんの右座標
-    #     self.vx, self.vy = +5, 0
-
 class Beam:
     """
     こうかとんが放つビームに関するクラス
@@ -161,7 +147,10 @@ def main():
     bg_img = pg.image.load("fig/pg_bg.jpg")
     beam = None
     bird = Bird((300, 200))
-    bomb = Bomb((255, 0, 0), 10)
+    
+    # NUM_OF_BOMBS個の爆弾インスタンスをリストで生成（内包表記）
+    bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
+    
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -173,22 +162,29 @@ def main():
                 beam = Beam(bird)            
         screen.blit(bg_img, [0, 0])
         
-        # 爆弾がNoneでない場合のみ衝突判定を行う
-        if bomb is not None and bird.rct.colliderect(bomb.rct):
-            # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
-            bird.change_img(8, screen)
-            pg.display.update()
-            time.sleep(1)
-            return
-        
-        # ビームと爆弾の衝突判定（両方がNoneでない場合のみ）
-        if beam is not None:
+        # こうかとんと爆弾の衝突判定
+        for i, bomb in enumerate(bombs):
             if bomb is not None:
-                if beam.rct.colliderect(bomb.rct):
-                    bird.change_img(6, screen)
-                    beam = None
-                    bomb = None
+                if bird.rct.colliderect(bomb.rct):
+                    # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
+                    bird.change_img(8, screen)
+                    pg.display.update()
+                    time.sleep(1)
+                    return
+        
+        # ビームと爆弾の衝突判定
+        if beam is not None:
+            for i, bomb in enumerate(bombs):
+                if bomb is not None:
+                    if beam.rct.colliderect(bomb.rct):
+                        bird.change_img(6, screen)
+                        beam = None
+                        bombs[i] = None
+                        break
             
+        # 爆弾リストの更新: Noneでない要素だけのリストにする
+        bombs = [bomb for bomb in bombs if bomb is not None]
+        
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
         
@@ -196,8 +192,8 @@ def main():
         if beam is not None:
             beam.update(screen)
             
-        # 爆弾が存在する場合のみupdate
-        if bomb is not None:
+        # 爆弾リストの各要素に対してupdate呼び出し（Noneチェック不要）
+        for bomb in bombs:
             bomb.update(screen)
             
         pg.display.update()
