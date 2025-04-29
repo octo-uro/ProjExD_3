@@ -205,13 +205,13 @@ def main():
         # ビームと爆弾の衝突判定
         if len(beams):
             for i, bomb in enumerate(bombs):
-                for k, beam in enumerate(beams):
+                for beam in beams:
                     if beam is not None and bomb is not None:
                         # ビームと爆弾が衝突した場合   
                         if beam.rct.colliderect(bomb.rct):
                             bird.change_img(6, screen)
                             bombs[i] = None
-                            beams[k] = None
+                            beam = None
                             score.score += 1 # スコアを1点加算
                             break
             
@@ -224,12 +224,11 @@ def main():
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
         
-        # ビームが存在する場合のみupdate
-        for i, beam in enumerate(beams):
-            if beam is not None:
-                beam.update(screen)
+        # ビーム描画更新
+        for beam in beams:
+            beam.update(screen)
             
-        # 爆弾リストの各要素に対してupdate呼び出し（Noneチェック不要）
+        # 爆弾描画更新
         for bomb in bombs:
             bomb.update(screen)
         
