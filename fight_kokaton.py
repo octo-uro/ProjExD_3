@@ -182,10 +182,11 @@ def main():
             return
         
         # ビームと爆弾の衝突判定（両方がNoneでない場合のみ）
-        if beam is not None and bomb is not None and beam.rct.colliderect(bomb.rct):
-            # ビームと爆弾が衝突したらどちらもNoneにする
-            beam = None
-            bomb = None
+        if beam is not None:
+            if bomb is not None:
+                if beam.rct.colliderect(bomb.rct):
+                    beam = None
+                    bomb = None
             
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
