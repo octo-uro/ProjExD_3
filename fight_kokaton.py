@@ -169,7 +169,7 @@ def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
     bg_img = pg.image.load("fig/pg_bg.jpg")
-    beam = None
+    beams = []
     bird = Bird((300, 200))
     
     # NUM_OF_BOMBS個の爆弾インスタンスをリストで生成（内包表記）
@@ -186,7 +186,7 @@ def main():
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 # スペースキー押下でBeamクラスのインスタンス生成
-                beam = Beam(bird)            
+                beams.append(Beam(bird))            
         screen.blit(bg_img, [0, 0])
         
         # こうかとんと爆弾の衝突判定
@@ -203,25 +203,31 @@ def main():
                     return
         
         # ビームと爆弾の衝突判定
-        if beam is not None:
+        if len(beams):
             for i, bomb in enumerate(bombs):
-                if bomb is not None:
-                    if beam.rct.colliderect(bomb.rct):
-                        bird.change_img(6, screen)
-                        beam = None
-                        bombs[i] = None
-                        score.score += 1 # スコアを1点加算
-                        break
+                for k, beam in enumerate(beams):
+                    if beam is not None and bomb is not None:
+                        # ビームと爆弾が衝突した場合   
+                        if beam.rct.colliderect(bomb.rct):
+                            bird.change_img(6, screen)
+                            bombs[i] = None
+                            beams[k] = None
+                            score.score += 1 # スコアを1点加算
+                            break
             
         # 爆弾リストの更新: Noneでない要素だけのリストにする
         bombs = [bomb for bomb in bombs if bomb is not None]
-        
+        # ビームリストの更新: Noneでない要素だけのリストにする
+        beams = [beam for beam in beams if beam is not None]
+        # 画面外に出たビームをリストから削除
+        beams = [beam for beam in beams if check_bound(beam.rct) == (True, True)]
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
         
         # ビームが存在する場合のみupdate
-        if beam is not None:
-            beam.update(screen)
+        for i, beam in enumerate(beams):
+            if beam is not None:
+                beam.update(screen)
             
         # 爆弾リストの各要素に対してupdate呼び出し（Noneチェック不要）
         for bomb in bombs:
