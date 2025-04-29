@@ -121,8 +121,7 @@ class Beam:
         """
         if check_bound(self.rct) == (True, True):
             self.rct.move_ip(self.vx, self.vy)
-            screen.blit(self.img, self.rct)    
-
+            screen.blit(self.img, self.rct)
 
 
 class Bomb:
@@ -174,18 +173,31 @@ def main():
                 beam = Beam(bird)            
         screen.blit(bg_img, [0, 0])
         
-        if bird.rct.colliderect(bomb.rct):
+        # 爆弾がNoneでない場合のみ衝突判定を行う
+        if bomb is not None and bird.rct.colliderect(bomb.rct):
             # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
             bird.change_img(8, screen)
             pg.display.update()
             time.sleep(1)
             return
-
+        
+        # ビームと爆弾の衝突判定（両方がNoneでない場合のみ）
+        if beam is not None and bomb is not None and beam.rct.colliderect(bomb.rct):
+            # ビームと爆弾が衝突したらどちらもNoneにする
+            beam = None
+            bomb = None
+            
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
-        if beam:
-            beam.update(screen)   
-        bomb.update(screen)
+        
+        # ビームが存在する場合のみupdate
+        if beam is not None:
+            beam.update(screen)
+            
+        # 爆弾が存在する場合のみupdate
+        if bomb is not None:
+            bomb.update(screen)
+            
         pg.display.update()
         tmr += 1
         clock.tick(50)
