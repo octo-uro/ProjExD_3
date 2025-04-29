@@ -243,20 +243,20 @@ def main():
                     return
         
         # ビームと爆弾の衝突判定
-        if len(beams):
-            for i, bomb in enumerate(bombs):
-                for j, beam in enumerate(beams):
-                    if beam is not None and bomb is not None:
-                        # ビームと爆弾が衝突した場合   
-                        if beam.rct.colliderect(bomb.rct):
-                            bird.change_img(6, screen)
-                            # 爆発エフェクトを生成
-                            explosions.append(Explosion(bomb.rct))
-                            bombs[i] = None
-                            beams[j] = None
-                            score.score += 1 # スコアを1点加算
-                            break
-            
+        
+        for i, bomb in enumerate(bombs):
+            for j, beam in enumerate(beams):
+                if beam is not None and bomb is not None:
+                    # ビームと爆弾が衝突した場合   
+                    if beam.rct.colliderect(bomb.rct):
+                        bird.change_img(6, screen)
+                        # 爆発エフェクトを生成
+                        explosions.append(Explosion(bomb.rct))
+                        bombs[i] = None
+                        beams[j] = None
+                        score.score += 1 # スコアを1点加算
+                        break
+        
         # 爆弾リストの更新: Noneでない要素だけのリストにする
         bombs = [bomb for bomb in bombs if bomb is not None]
         # ビームリストの更新: Noneでない要素だけのリストにする
